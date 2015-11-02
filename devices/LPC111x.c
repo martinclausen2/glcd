@@ -37,7 +37,7 @@
 
 #if defined(GLCD_DEVICE_LPC111X)
 
-void glcd_init(void)
+void glcd_init_device(void)
 {
 
 #if defined(GLCD_CONTROLLER_PCD8544)
@@ -64,11 +64,7 @@ void glcd_init(void)
 
 	glcd_PCD8544_init();
 
-	glcd_select_screen(glcd_buffer,&glcd_bbox);
-
-	glcd_clear();
-
-#else /* GLCD_CONTROLLER_PCD8544 */
+#else
 	#error "Controller not supported by LPC111x"
 #endif
 

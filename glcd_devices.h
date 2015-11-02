@@ -3,7 +3,7 @@
    \brief Functions specific to certain devices (microcontrollers).
           These are functions are defined in devices/yourdevice.c
    \author Andy Gock
- */ 
+ */
 
 /*
 	Copyright (c) 2012, Andy Gock
@@ -44,6 +44,8 @@
 	#include "LPC11Uxx.h"
 #elif defined(GLCD_DEVICE_STM32F0XX)
 	#include "STM32F0xx.h"
+#elif defined(GLCD_DEVICE_STM32F10X)
+	#include "STM32F1xx.h"
 #elif defined(GLCD_DEVICE_STM32F4XX)
 	#include "stm32f4xx.h"
 	#include "devices/STM32F4.h"
@@ -64,7 +66,7 @@
 /**
  * Initialise the LCD. This function is platform and controller specific.
  */
-void glcd_init(void);
+void glcd_init_device(void);
 
 #if !defined(GLCD_USE_PARALLEL)
 

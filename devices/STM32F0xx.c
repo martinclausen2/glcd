@@ -55,11 +55,11 @@ void glcd_init(void)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	SPI_InitTypeDef  SPI_InitStructure;
   //NVIC_InitTypeDef NVIC_InitStructure;
-	
+
 	/* Initialise structures (which we will overide later) */
 	GPIO_StructInit(&GPIO_InitStructure);
 	SPI_StructInit(&SPI_InitStructure);
-	
+
 	/* Need to make start up the correct peripheral clocks */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
 
@@ -68,7 +68,7 @@ void glcd_init(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_3;
 	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
 	GPIO_Init(CONTROLLER_SPI_SS_PORT, &GPIO_InitStructure);
-	
+
 	/* DC pin */
 	GPIO_InitStructure.GPIO_Pin = CONTROLLER_SPI_DC_PIN;
 	GPIO_Init(CONTROLLER_SPI_DC_PORT, &GPIO_InitStructure);
@@ -111,7 +111,7 @@ void glcd_init(void)
 	NVIC_InitStructure.NVIC_IRQChannelPriority = 0x00;
 	NVIC_Init(&NVIC_InitStructure);
 	*/
-	
+
 	/* Enable SPI */
 	SPI_Cmd(CONTROLLER_SPI_NUMBER, ENABLE);
 
@@ -133,13 +133,7 @@ void glcd_init(void)
 	/* Normal mode */
 	glcd_command(PCD8544_DISPLAY_CONTROL | PCD8544_DISPLAY_NORMAL);
 
-	glcd_select_screen((uint8_t *)&glcd_buffer,&glcd_bbox);
-
 	glcd_set_contrast(50);
-
-	glcd_clear();
-
-
 #else
 	#error "Controller not supported by STM32F0xx"
 #endif
@@ -151,7 +145,7 @@ void glcd_spi_write(uint8_t c)
 
 	GLCD_SELECT();
 	SPI_SendData8(CONTROLLER_SPI_NUMBER, (uint16_t) c);
-	
+
 	/* Wait until entire byte has been read (which we discard anyway) */
 	while(SPI_I2S_GetFlagStatus(CONTROLLER_SPI_NUMBER, SPI_I2S_FLAG_BSY) != RESET);
 

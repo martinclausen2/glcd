@@ -50,7 +50,7 @@ uint8_t glcd_buffer[GLCD_LCD_WIDTH * GLCD_LCD_HEIGHT / 8];
 
 /**
  * Keeps track of bounding box of area on LCD which need to be
- * updated next reresh cycle
+ * updated next refresh cycle
  */
 glcd_BoundingBox_t glcd_bbox;
 
@@ -65,6 +65,15 @@ uint8_t *glcd_buffer_selected;
 glcd_BoundingBox_t *glcd_bbox_selected;
 
 /** @} */
+
+void glcd_init(void)
+{
+    /* Initialization of lib */
+	glcd_select_screen((uint8_t *)&glcd_buffer,&glcd_bbox);
+    /* Initialization of device */
+    glcd_init_device();
+   	glcd_clear();
+}
 
 void glcd_update_bbox(uint8_t xmin, uint8_t ymin, uint8_t xmax, uint8_t ymax)
 {
@@ -86,16 +95,16 @@ void glcd_update_bbox(uint8_t xmin, uint8_t ymin, uint8_t xmax, uint8_t ymax)
 	/* Update the bounding box size */
 	if (xmin < glcd_bbox_selected->x_min) {
 		glcd_bbox_selected->x_min = xmin;
-	}		
+	}
 	if (xmax > glcd_bbox_selected->x_max) {
 		glcd_bbox_selected->x_max = xmax;
 	}
 	if (ymin < glcd_bbox_selected->y_min) {
 		glcd_bbox_selected->y_min = ymin;
-	}		
+	}
 	if (ymax > glcd_bbox_selected->y_max) {
 		glcd_bbox_selected->y_max = ymax;
-	}			
+	}
 }
 
 void glcd_reset_bbox()
@@ -104,7 +113,7 @@ void glcd_reset_bbox()
 	glcd_bbox_selected->x_min = GLCD_LCD_WIDTH - 1;
 	glcd_bbox_selected->x_max = 0;
 	glcd_bbox_selected->y_min = GLCD_LCD_HEIGHT -1;
-	glcd_bbox_selected->y_max = 0;	
+	glcd_bbox_selected->y_max = 0;
 }
 
 void glcd_bbox_reset() {
@@ -116,7 +125,7 @@ void glcd_bbox_refresh() {
 	glcd_bbox_selected->x_min = 0;
 	glcd_bbox_selected->x_max = GLCD_LCD_WIDTH - 1;
 	glcd_bbox_selected->y_min = 0;
-	glcd_bbox_selected->y_max = GLCD_LCD_HEIGHT -1;		
+	glcd_bbox_selected->y_max = GLCD_LCD_HEIGHT -1;
 }
 
 void glcd_clear(void) {
@@ -139,13 +148,13 @@ void glcd_select_screen(uint8_t *buffer, glcd_BoundingBox_t *bbox)
 void glcd_scroll(int8_t x, int8_t y)
 {
 	/** \todo Skeleton */
-	
+
 	uint8_t row;
-	
+
 	for (row=0; row<(GLCD_LCD_HEIGHT / 8); row++) {
 		uint8_t x;
 		for (x=0; x<GLCD_LCD_WIDTH; x++) {
-			
+
 		}
 	}
 }

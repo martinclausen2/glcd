@@ -27,6 +27,7 @@ The following Newhaven displays have been physically tested with and confirmed w
 - NHD-C12864WC-FSW-FBW-3V3-M
 - NHD-C12864A1Z-FSW-FBW-HTT
 - NHD-C12832A1Z-FSW-FBW-3V3
+- EA DOGM128, DOGL128, and DOGM132, low voltage and low power mode
 
 \section SupportedMicrocontrollers Supported Microcontrollers
 
@@ -36,6 +37,7 @@ Current supported devices / microcontrollers:
 - NXP LPC111x ARM Cortex
 - NXP LPC11Uxx ARM Cortex
 - ST STM32F0XX Arm Cortex
+- ST STM32F10X Arm Cortex
 - Microchip PIC24H
 
 \section CompilerSetup Compiler Setup
@@ -48,6 +50,7 @@ Pick microcontroller type (pick one only):
 	GLCD_DEVICE_LPX11UXX
 	GLCD_DEVICE_AVR8
 	GLCD_DEVICE_STM32F0XX
+	GLCD_DEVICE_STM32F10X
 	GLCD_DEVICE_PIC24H
 
 Pick LCD controller type (pick one only):
@@ -75,9 +78,18 @@ sequence, define one of the following:
 	GLCD_INIT_NHD_C12832A1Z_FSW_FBW_3V3
 	GLCD_INIT_NHD_C12864A1Z_FSW_FBW_HTT
 	GLCD_INIT_NHD_C12864WC_FSW_FBW_3V3_M
+	GLCD_INIT_EA_DOG128_132
 
-If you don't specify a NHD model, ST7565 controller selection will default to `GLCD_INIT_NHD_C12864WC_FSW_FBW_3V3_M` sequence.
-This however may change in the future.
+If you don't specify a model, there will be an error thrown.
+
+The EA models will need an additional define to specify the operation mode, of which the following are possible:
+
+    GLCD_INIT_EA_DOG128_LP
+    GLCD_INIT_EA_DOG128_LV
+    GLCD_INIT_EA_DOG132_LP
+	GLCD_INIT_EA_DOG132_LV
+
+The display content might be rotated by 180° using the following define: GLCD_INIT_EA_DOG128_132_topview
 
 These symbols above need to be set in the configuration options of your IDE, usually
 in the "defined symbols" section, or they can be defined in a makefile
@@ -95,7 +107,7 @@ http://www.mikroe.com/eng/products/view/683/glcd-font-creator/
 
 There is a [tutorial on my web site](http://agock.com/2012/07/making-custom-fonts-for-glcd-library/) on how to use this software.
 
-I also have been in the progress of working on a dedicated piece of software for generating fonts and bitmaps called [glcd-utils](https://github.com/andygock/glcd-utils). This is not very active at the moment, and is written in Qt Creator. This is set up specifically for glcd and works a lot better. However it is not documented and not really fit for public distribution at the moment. 
+I also have been in the progress of working on a dedicated piece of software for generating fonts and bitmaps called [glcd-utils](https://github.com/andygock/glcd-utils). This is not very active at the moment, and is written in Qt Creator. This is set up specifically for glcd and works a lot better. However it is not documented and not really fit for public distribution at the moment.
 
 https://github.com/andygock/glcd-utils
 

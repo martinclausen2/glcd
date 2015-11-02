@@ -4,7 +4,7 @@
           For use with GNU toolchain
    \author Andy Gock
 
- */ 
+ */
 
 /*
 	Copyright (c) 2012, Andy Gock
@@ -38,20 +38,20 @@
 
 #if defined(GLCD_DEVICE_AVR8)
 
-void glcd_init(void)
+void glcd_init_device(void)
 {
-	
+
 #if defined(GLCD_CONTROLLER_PCD8544)
 
 	/* Set pin directions */
-	
+
 	/*
 	 * Set up SPI for AVR8
 	 * Note: AVR's SS pin must be set to output, regardless of whether we
 	 * actually use it. This is a requirement of SPI mster mode.
 	 */
 	sbi(DDR(AVR_SS_PORT),AVR_SS_PIN);
-	
+
 	/*
 	 *  Set MOSI, Master SS, SCK to output (otherwise SPI won't work)
 	 *  Must be done even if native SS pin not used
@@ -59,12 +59,12 @@ void glcd_init(void)
 	sbi(DDR(CONTROLLER_MOSI_PORT),CONTROLLER_MOSI_PIN);
 	sbi(DDR(CONTROLLER_SS_PORT),CONTROLLER_SS_PIN);
 	sbi(DDR(CONTROLLER_SCK_PORT),CONTROLLER_SCK_PIN);
-		
+
 	/* Set SS, DC and RST pins to output */
 	sbi( DDR(CONTROLLER_SS_PORT), CONTROLLER_SS_PIN );
 	sbi( DDR(CONTROLLER_DC_PORT), CONTROLLER_DC_PIN );
 	sbi( DDR(CONTROLLER_RST_PORT), CONTROLLER_RST_PIN );
-	
+
 	/* Deselect LCD */
 	GLCD_DESELECT();
 
@@ -74,43 +74,37 @@ void glcd_init(void)
 	 */
 	SPCR = (1<<SPE)|(1<<MSTR);
 	SPSR = 0;
-	
-	glcd_PCD8544_init();
 
-	/* Select screen buffer */
-	glcd_select_screen(glcd_buffer,&glcd_bbox);
-	
-	/* Clear screen, we are now ready to go */
-	glcd_clear();
+	glcd_PCD8544_init();
 
 #elif defined(GLCD_CONTROLLER_ST7565R)
 
 	/* Set up GPIO directions */
-	
+
 	/*
 	 * Set up SPI for AVR8
 	 * Note: AVR's SS pin must be set to output, regardless of whether we
 	 * actually use it. This is a requirement of SPI mster mode.
 	 */
 	sbi(DDR(AVR_SS_PORT),AVR_SS_PIN);
-	
+
 	/* Set SCK and MOSI as output */
 	sbi(DDR(CONTROLLER_SCK_PORT),CONTROLLER_SCK_PIN);
 	sbi(DDR(CONTROLLER_MOSI_PORT),CONTROLLER_MOSI_PIN);
-	
+
 	/*
 	 * Set MISO as input with pullup. This needs to be set for
 	 * SPI to work, even though we never use or read it.
 	 */
 	cbi(DDR(CONTROLLER_MISO_PORT),CONTROLLER_MISO_PIN); // B3 MISO as input
 	sbi(CONTROLLER_MISO_PORT,CONTROLLER_MISO_PIN);
-	
+
 	/* Set pin to controller SS as output */
 	sbi(DDR(CONTROLLER_SS_PORT),CONTROLLER_SS_PIN); // A5
 
 	/* Set LCD A0 pin as output */
 	sbi(DDR(CONTROLLER_A0_PORT),CONTROLLER_A0_PIN); // A6
-		
+
 	/* Init SS pin high (i.e LCD deselected) */
 	sbi(CONTROLLER_SS_PORT,CONTROLLER_SS_PIN);
 
@@ -118,32 +112,28 @@ void glcd_init(void)
 	GLCD_DESELECT();
 
 	/* MSB first, double speed, SPI mode 0 */
-	SPCR = (1<<SPE) | (1<<MSTR) | (0<<CPOL) | (0<<CPHA);	
+	SPCR = (1<<SPE) | (1<<MSTR) | (0<<CPOL) | (0<<CPHA);
 	sbi(SPSR,SPI2X);
-	
+
 	/* Enable interrupts */
 	sei();
-		
+
 	delay_ms(30); /* Example in datasheet does this (20ms) */
 
 	glcd_ST7565R_init();
 
 	glcd_all_on();
-	
+
 	delay_ms(500);
 	glcd_normal();
 
 	glcd_set_start_line(0);
 	glcd_clear_now();
-			
-	glcd_select_screen(glcd_buffer,&glcd_bbox);
-	
-	glcd_clear();	
-	
+
 #else
 	#error "Controller not supported"
 #endif /* GLCD_CONTROLLER_* */
-	
+
 }
 
 void glcd_spi_write(uint8_t c)
@@ -151,7 +141,7 @@ void glcd_spi_write(uint8_t c)
 	GLCD_SELECT();
 	SPDR = c;
 	while(!(SPSR & (1<<SPIF))); /* wait until transmission is complete */
-	GLCD_DESELECT();	
+	GLCD_DESELECT();
 }
 
 void glcd_reset(void)
@@ -161,7 +151,7 @@ void glcd_reset(void)
 	GLCD_RESET_LOW();
 	delay_ms(GLCD_RESET_TIME);
 	GLCD_RESET_HIGH();
-	GLCD_DESELECT();	
+	GLCD_DESELECT();
 }
 
 #endif /* defined(GLCD_DEVICE_AVR8) */

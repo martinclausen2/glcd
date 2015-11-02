@@ -4,11 +4,12 @@
  * \author Andy Gock
  *
  * Constants and functions specific to ST7565R.
- * Tested with Newhaven Display model NHD-C12864WC-FSW-FBW-3V3-M
- * 
+ * Tested with  Newhaven Display model NHD-C12864WC-FSW-FBW-3V3-M
+ *              Electronic Assembly DOGL128
+ *
  * \todo Need to move functions to be controller independent
  *
- */ 
+ */
 
 /*
 	Copyright (c) 2012, Andy Gock
@@ -42,17 +43,21 @@
 #define ST7565R_H_
 
 /* Commands */
-#define ST7565R_DISPLAY_ON 0b10101111	 
-#define ST7565R_DISPLAY_OFF 0b10101110	 
-#define ST7565R_PAGE_ADDRESS_SET 0b10110000	 
-#define ST7565R_COLUMN_ADDRESS_SET_LOWER 0x00 
-#define ST7565R_COLUMN_ADDRESS_SET_UPPER 0x10 
+#define ST7565R_DISPLAY_ON 0b10101111
+#define ST7565R_DISPLAY_OFF 0b10101110
+#define ST7565R_PAGE_ADDRESS_SET 0b10110000
+#define ST7565R_COLUMN_ADDRESS_SET_LOWER 0x00
+#define ST7565R_COLUMN_ADDRESS_SET_UPPER 0x10
 #define ST7565R_DISPLAY_NORMAL 0b10100100
 #define ST7565R_DISPLAY_ALL_ON 0b10100101
 #define ST7565R_NORMAL  0b10100000
 #define ST7565R_REVERSE 0b10100001
 #define ST7565R_RESET   0b11100010
 #define ST7565R_SET_START_LINE (1<<6)
+
+
+/* Constants */
+#define GLCD_RESET_TIME 1   //even 3µs would be sufficient
 
 /* These functions only available on ST7565 implementation (for now) */
 

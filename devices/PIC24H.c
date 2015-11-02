@@ -3,7 +3,7 @@
    \brief Functions relating to Microchip PIC24H (16-bit).
           For use with xc16 compiler.
    \author Andy Gock
- */ 
+ */
 
 /*
 	Copyright (c) 2013, Andy Gock
@@ -43,11 +43,11 @@
 
 #if defined(GLCD_DEVICE_PIC24H)
 
-void glcd_init(void)
+void glcd_init_device(void)
 {
-	
+
 #if defined(GLCD_CONTROLLER_PCD8544)
-	
+
 	/* Set up remappable outputs for PIC24H, SPI: DO and SCK */
 	OSCCONbits.IOLOCK = 0;
 	REGISTER_MAP_SPI_DO = 0b00111; /* Set as SPI DO */
@@ -95,15 +95,9 @@ void glcd_init(void)
 
 	/* Send reset pulse to LCD */
 	glcd_reset();
-	
+
 	/* Initialise the display */
 	glcd_PCD8544_init();
-
-	/* Select screen buffer */
-	glcd_select_screen(glcd_buffer,&glcd_bbox);
-	
-	/* Clear screen, we are now ready to go */
-	glcd_clear();
 
 #elif defined(GLCD_CONTROLLER_ST7565R)
 
@@ -123,7 +117,7 @@ void glcd_init(void)
 	CONTROLLER_SS_TRIS = 0;
 	CONTROLLER_A0_TRIS = 0;
 	CONTROLLER_RST_TRIS = 0;
-	
+
 	/* Deselect LCD */
 	GLCD_DESELECT();
 
@@ -170,21 +164,16 @@ void glcd_init(void)
 
 	glcd_set_start_line(0);
 	glcd_clear_now();
-			
-	glcd_select_screen(glcd_buffer,&glcd_bbox);
-	
-	glcd_clear();	
-	
 #else
 	#error "Controller not supported"
 #endif /* GLCD_CONTROLLER_* */
-	
+
 }
 
 void glcd_spi_write(uint8_t c)
 {
 	GLCD_SELECT();
-	
+
     while (SPI1STATbits.SPITBF); /* Loop until TX buffer is empty */
 	SPI1BUF = (c & 0x00FF); /* Write data to be transmitted */
 	while(!SPI1STATbits.SPIRBF); /* Wait until TX finished */
@@ -202,7 +191,7 @@ void glcd_reset(void)
 	GLCD_RESET_LOW();
 	__delay_ms(GLCD_RESET_TIME);
 	GLCD_RESET_HIGH();
-	GLCD_DESELECT();	
+	GLCD_DESELECT();
 }
 
 #endif /* defined(GLCD_DEVICE_PIC24H) */

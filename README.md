@@ -43,6 +43,10 @@ The following Newhaven displays have been physically tested with and confirmed w
 - NHD-C12832A1Z-FSW-FBW-3V3
 - ZOLEN-12864-FFSSWE-NAA
 
+The following Electronic Assembly displays have been physically tested with and confirmed working:
+
+- EA DOGL128
+
 Supported microcontrollers
 --------------------------
 
@@ -52,6 +56,7 @@ MCUs supported:
 - NXP LPC111x ARM Cortex-M0
 - NXP LPC11Uxx ARM Cortex-M0
 - ST STM32 F0 ARM Cortex-M0
+- ST STM32 F1 ARM Cortex-M3 (updated to new HAL and CubeMX)
 - ST STM32 F4 ARM Cortex-M4
 - Microchip PIC24H (and probably other 16-bit MCUs)
 
@@ -63,6 +68,7 @@ Development boards tested on (without on-board LCD):
 
 - Microstick II with PIC24H and Nokia 3310/5110 LCD, ST7565R and ST7565P
 - ST Nucleo F401RE.
+- Olimex STM32-H103
 
 ### Special note
 
@@ -79,6 +85,7 @@ Pick microcontroller type (pick one only):
 	GLCD_DEVICE_LPX11UXX
 	GLCD_DEVICE_AVR8
 	GLCD_DEVICE_STM32F0XX
+	GLCD_DEVICE_STM32F10X
 	GLCD_DEVICE_STM32F4XX
 	GLCD_DEVICE_PIC24H
 
@@ -109,6 +116,8 @@ sequence, define one of the following:
 	GLCD_INIT_NHD_C12864A1Z_FSW_FBW_HTT
 	GLCD_INIT_NHD_C12864WC_FSW_FBW_3V3_M
 	GLCD_INIT_ZOLEN_12864_FFSSWE_NAA
+	GLCD_INIT_EA_DOGL128_LP
+	GLCD_INIT_EA_DOGL128_LV
 
 If you don't specify a NHD model, ST7565 controller selection will default to `GLCD_INIT_NHD_C12864WC_FSW_FBW_3V3_M` sequence.
 This however may change in the future.
@@ -135,7 +144,7 @@ by setting the compiler symbols:
 
 	GLCD_USE_AVR_DELAY
 	__DELAY_BACKWARD_COMPATIBLE__
-	
+
 Documentation
 -------------
 

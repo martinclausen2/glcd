@@ -1,9 +1,9 @@
 /**
  * \file ST7565R.c
  * \brief Functions relating to ST7565R.
- * \author Andy Gock
+ * \author Andy Gock, extension Martin Clausen
  * \see glcd.h
- */ 
+ */
 #if defined(GLCD_CONTROLLER_ST7565R)
 
 #include "../glcd.h"
@@ -11,13 +11,13 @@
 void glcd_command(uint8_t c)
 {
 	GLCD_A0_LOW();
-	glcd_spi_write(c);	
+	glcd_spi_write(c);
 }
 
 void glcd_data(uint8_t c)
 {
 	GLCD_A0_HIGH();
-	glcd_spi_write(c);	
+	glcd_spi_write(c);
 }
 
 void glcd_set_contrast(uint8_t val) {
@@ -25,8 +25,8 @@ void glcd_set_contrast(uint8_t val) {
 
 	/* Must send this command byte before setting the contrast */
 	glcd_command(0x81);
-	
-	/* Set the contrat value ("electronic volumne register") */
+
+	/* Set the contrast value ("electronic volume register") */
 	if (val > 63) {
 		glcd_command(63);
 	} else {
@@ -58,13 +58,13 @@ void glcd_power_up(void)
 
 void glcd_set_y_address(uint8_t y)
 {
-	glcd_command(ST7565R_PAGE_ADDRESS_SET | (0b00001111 & y));	
+	glcd_command(ST7565R_PAGE_ADDRESS_SET | (0b00001111 & y));
 }
 
 void glcd_set_x_address(uint8_t x)
 {
 	glcd_set_column_upper(x);
-	glcd_set_column_lower(x);	
+	glcd_set_column_lower(x);
 }
 
 void glcd_all_on(void)
@@ -102,7 +102,7 @@ void glcd_clear_now(void)
 		uint8_t col;
 		for (col = 0; col < GLCD_NUMBER_OF_COLS; col++) {
 			glcd_data(0);
-		}			
+		}
 	}
 }
 
@@ -115,7 +115,7 @@ void glcd_pattern(void)
 		uint8_t col;
 		for (col = 0; col < GLCD_NUMBER_OF_COLS; col++) {
 			glcd_data( (col / 8 + 2) % 2 == 1 ? 0xff : 0x00 );
-		}			
+		}
 	}
 }
 
@@ -126,16 +126,16 @@ void glcd_write()
 
 	for (bank = 0; bank < GLCD_NUMBER_OF_BANKS; bank++) {
 		/* Each bank is a single row 8 bits tall */
-		uint8_t column;		
-		
+		uint8_t column;
+
 		if (glcd_bbox_selected->y_min >= (bank+1)*8) {
 			continue; /* Skip the entire bank */
 		}
-		
+
 		if (glcd_bbox_selected->y_max < bank*8) {
 			break;    /* No more banks need updating */
 		}
-		
+
 		glcd_set_y_address(bank);
 		glcd_set_x_address(glcd_bbox_selected->x_min);
 
@@ -150,7 +150,7 @@ void glcd_write()
 }
 
 void glcd_ST7565R_init(void) {
-	
+
 #if defined(GLCD_INIT_NHD_C12832A1Z_FSW_FBW_3V3)
 
 	/* Init sequence based on datasheet example code for NHD-C12832A1Z-FSW-FBW-3V3 */
@@ -208,21 +208,55 @@ void glcd_ST7565R_init(void) {
 	glcd_set_contrast(20); /* Set contrast, value experimentally determined, value 0 to 63 */
 	glcd_command(0xaf); /* Display on */
 
+#elif (defined(GLCD_INIT_EA_DOG128_LP) || defined(GLCD_INIT_EA_DOG128_LV) || defined(GLCD_INIT_EA_DOG132_LP) || defined(GLCD_INIT_EA_DOG132_LV))
+
+	/* Init sequence for Electronic Assembly DOGM128 DOGL128 DOGM132*/
+	glcd_command(ST7565R_RESET); /* Internal reset */
+	glcd_command(0x40); /* Display start line set */
+
+#if defined(GLCD_INIT_EA_DOG128_132_topview)
+	glcd_command(0xa0); /* ADC select, normal */
+	glcd_command(0xc8); /* reversed Com output */
 #else
+	glcd_command(0xa1); /* ADC select, reverse */
+	glcd_command(0xc0); /* normal Com output */
+#endif
 
-	/* Default init sequence */
-	/* Currently just set the same as GLCD_INIT_NHD_C12864A1Z_FSW_FBW_HTT */
+	glcd_command(0xa6); /* Display all points normal */
+	glcd_command(0xa2); /* 1/9 bias */
 
-	glcd_command(0xa0); /* ADC select in normal mode */
-	glcd_command(0xae); /* Display OFF */
-	glcd_command(0xc8); /* Common output mode select: reverse direction (last 3 bits are ignored) */
-	glcd_command(0xa2); /* LCD bias set at 1/9 */
-	glcd_command(0x2f); /* Power control set to operating mode: 7 */
-	glcd_command(0x26); /* Internal resistor ratio, set to: 6 */
-	glcd_set_contrast(20); /* Set contrast, value experimentally determined, value 0 to 63 */
+#if defined(GLCD_INIT_EA_DOG128_LP)
+	/* Init sequence for Electronic Assembly DOGM128 DOGL128 in low power mode (3.0 to 3,3V) */
+	glcd_command(0x2f); /* Power controller set, booster, regulator and follower on */
+	glcd_command(0xf8); /* Booster x4 */
+	glcd_command(0x00); /* Booster x4 */
+	glcd_command(0x27); /* V0 voltage regulator set */
+#elif defined(GLCD_INIT_EA_DOG128_LV)
+    /* Init sequence for Electronic Assembly DOGM128 DOGL128 in low voltage mode (1.8 to 3,3V) with external LCD bias supply*/
+	glcd_command(0x2b); /* Power controller set, booster off, regulator and follower on */
+	glcd_command(0x27); /* V0 voltage regulator set */
+#elif defined(GLCD_INIT_EA_DOG132_LP)
+	/* Init sequence for Electronic Assembly DOGM132 in low power (3.0 to 3,3V) or wide range mode (2.4 to 3,3V) */
+	glcd_command(0x2f); /* Power controller set, booster, regulator and follower on */
+	glcd_command(0xf8); /* Booster x4 */
+	glcd_command(0x00); /* Booster x4 */
+	glcd_command(0x23); /* V0 voltage regulator set */
+#elif defined(GLCD_INIT_EA_DOG132_LV)
+    /* Init sequence for Electronic Assembly DOGM132 in low voltage mode (1.8 to 3,3V) with external LCD bias supply*/
+	glcd_command(0x2b); /* Power controller set, booster off, regulator and follower on */
+	glcd_command(0x23); /* V0 voltage regulator set */
+#else
+    #error "Missing mode selection for Electronic Assembly DOG 128_132"
+#endif
+
+	glcd_set_contrast(20); /* Set contrast value, experimentally determined, value 0 to 63 */
+	glcd_command(0xac); /*  No static indicator*/
+	glcd_command(0x00); /*  No static indicator*/
 	glcd_command(0xaf); /* Display on */
 
+#else
+    #error "Missing display selection for ST7565R"
 #endif
-	
+
 }
 #endif

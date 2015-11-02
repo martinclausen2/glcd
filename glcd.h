@@ -1,8 +1,8 @@
 /**
    \file glcd.h
    \brief GLCD Library main header file. This file must be included into project.
-   \author Andy Gock
- */ 
+   \author Andy Gock, modifications Martin Clausen
+ */
 
 /*
 	Copyright (c) 2012, Andy Gock
@@ -40,7 +40,7 @@
 	#include <avr/io.h>
 	#include <avr/interrupt.h>
 	#include "devices/AVR8.h"
-	
+
 	#if !defined(GLCD_USE_AVR_DELAY)
 		extern void delay_ms(uint32_t ms);
 	#else
@@ -48,13 +48,13 @@
 		#include <util/delay.h>
 		#define delay_ms(t) _delay_ms(t)
 	#endif
-	
+
 #elif defined(GLCD_DEVICE_LPC111X)
 	#include <LPC11xx.h>
 	#include "devices/LPC111x.h"
 	extern void delay_ms(uint32_t ms);
 	#define PROGMEM
-	
+
 #elif defined(GLCD_DEVICE_LPC11UXX)
 	#include <LPC11Uxx.h>
 	#include "devices/LPC11Uxx.h"
@@ -64,7 +64,13 @@
 #elif defined(GLCD_DEVICE_STM32F0XX)
 	#include <stm32f0xx.h>
 	#include <stm32f0xx_gpio.h>
-	#include "devices/inc/STM32F0xx.h"
+	#include "devices/STM32F0xx.h"
+	extern void delay_ms(uint32_t ms);
+	#define PROGMEM
+
+#elif defined(GLCD_DEVICE_STM32F10X)
+	#include <stm32f10x.h>
+	#include "devices/STM32F10x.h"
 	extern void delay_ms(uint32_t ms);
 	#define PROGMEM
 
@@ -93,16 +99,16 @@
 
 #if defined(GLCD_CONTROLLER_PCD8544)
 	#include "controllers/PCD8544.h"
-	
+
 #elif defined(GLCD_CONTROLLER_ST7565R)
-	#include "controllers/ST7565R.h"	
-	
+	#include "controllers/ST7565R.h"
+
 #elif defined(GLCD_CONTROLLER_NT75451)
 	#include "controllers/NT75451.h"
-		
+
 #else
 	#error "Controller not supported or defined"
-	
+
 #endif
 
 /* Macros */
@@ -130,6 +136,18 @@ typedef struct {
 	uint8_t y_max;
 } glcd_BoundingBox_t;
 
+/** @}*/
+
+typedef struct {
+	const char *font_table;
+	uint8_t width;
+	uint8_t height;
+	char start_char;
+	char end_char;
+	font_table_type_t table_type;
+} glcd_FontConfig_t;
+
+
 #include <stdint.h>
 #include "glcd_devices.h"
 #include "glcd_controllers.h"
@@ -152,7 +170,7 @@ typedef struct {
  * @{
  */
 
-/* 
+/*
  * Set to custom value, or leave at 0 for automatic assignment.
  * For custom dimensions, users can define this in their compiler options.
  */
@@ -209,12 +227,20 @@ typedef struct {
 /* Global variables used for GLCD library */
 extern uint8_t glcd_buffer[GLCD_LCD_WIDTH * GLCD_LCD_HEIGHT / 8];
 extern glcd_BoundingBox_t glcd_bbox;
+
 extern uint8_t *glcd_buffer_selected;
 extern glcd_BoundingBox_t *glcd_bbox_selected;
 
-/** \name Base Functions 
+extern glcd_FontConfig_t font_current;
+
+/** \name Base Functions
  *  @{
  */
+
+/**
+ * Init the system of lib, device, and controller
+ */
+void glcd_init(void);
 
 /**
  * Update bounding box.
@@ -249,7 +275,7 @@ void glcd_bbox_reset(void);
  * Marks the entire display for re-writing.
  */
 void glcd_bbox_refresh(void);
-	
+
 /**
  * Clear the display. This will clear the buffer and physically write and commit it to the LCD
  */
@@ -262,7 +288,7 @@ void glcd_clear_buffer(void);
 
 /**
  * Select screen buffer and bounding box structure.
- * This should be selected at initialisation. There are future plans to support multiple screen buffers
+ * This should be selected at initialization. There are future plans to support multiple screen buffers
  * but this not yet available.
  * \param buffer Pointer to screen buffer
  * \param bbox   Pointer to bounding box object.
@@ -271,7 +297,7 @@ void glcd_clear_buffer(void);
 void glcd_select_screen(uint8_t *buffer, glcd_BoundingBox_t *bbox);
 
 /**
- * Scroll entire screne buffer by x and y pixels. (not implemented yet)
+ * Scroll entire screen buffer by x and y pixels. (not implemented yet)
  * \note Items scrolled off the extents of the display dimensions will be lost.
  *
  * \param x X distance to scroll
@@ -285,20 +311,5 @@ void glcd_scroll(int8_t x, int8_t y);
  * \see Tiny Text
  */
 void glcd_scroll_line(void);
-
-/** @}*/
-
-typedef struct {
-	const char *font_table;
-	uint8_t width;
-	uint8_t height;
-	char start_char;
-	char end_char;
-	font_table_type_t table_type;
-} glcd_FontConfig_t;
-
-extern uint8_t *glcd_buffer_selected;
-extern glcd_BoundingBox_t *glcd_bbox_selected;
-extern glcd_FontConfig_t font_current;
 
 #endif

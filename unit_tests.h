@@ -42,7 +42,7 @@ extern volatile uint8_t unit_test_return;
 /** Make random "exploding circles" */
 void glcd_test_circles(void);
 
-/* Shows a 8-bit counter incorementing, with a verticla and horizontal bar graph */
+/* Shows a 8-bit counter incrementing, with a vertical and horizontal bar graph */
 void glcd_test_counter_and_graph(void);
 
 /* Shows a 16-bit counter incrementing, using glcdutils font format */

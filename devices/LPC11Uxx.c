@@ -37,7 +37,7 @@
 
 #if defined(GLCD_DEVICE_LPC11UXX)
 
-void glcd_init(void)
+void glcd_init_device(void)
 {
 
 #if defined(GLCD_CONTROLLER_PCD8544)
@@ -64,22 +64,18 @@ void glcd_init(void)
 
 	glcd_PCD8544_init();
 
-	glcd_select_screen(glcd_buffer,&glcd_bbox);
-
-	glcd_clear();
-
 #elif defined(GLCD_CONTROLLER_NT75451)
 	/* Parallel interface controller used on NGX BlueBoards */
-	
+
 	/* Set 4x control lines pins as output */
 	LPC_GPIO->DIR[CONTROLLER_LCD_EN_PORT] |= (1U<<CONTROLLER_LCD_EN_PIN);
 	LPC_GPIO->DIR[CONTROLLER_LCD_RW_PORT] |= (1U<<CONTROLLER_LCD_RW_PIN);
 	LPC_GPIO->DIR[CONTROLLER_LCD_RS_PORT] |= (1U<<CONTROLLER_LCD_RS_PIN);
 	LPC_GPIO->DIR[CONTROLLER_LCD_CS_PORT] |= (1U<<CONTROLLER_LCD_CS_PIN);
-	
+
 	/* Don't worry about setting default RS/RW/CS/EN, they get set during use */
-	
-#ifdef CONTROLLER_LCD_DATA_PORT	
+
+#ifdef CONTROLLER_LCD_DATA_PORT
 	/* Set data pins as output */
 	LPC_GPIO->DIR[CONTROLLER_LCD_D0_PORT] |= GLCD_PARALLEL_MASK;
 #else
@@ -88,13 +84,7 @@ void glcd_init(void)
 
 	glcd_NT75451_init();
 
-	/* Select default screen buffer */
-	glcd_select_screen(glcd_buffer,&glcd_bbox);
-
-	/* Clear the screen buffer */
-	glcd_clear();
-	
-#else /* GLCD_CONTROLLER_PCD8544 */
+#else
 	#error "Controller not supported by LPC111x"
 #endif
 
@@ -105,7 +95,7 @@ void glcd_init(void)
 /** Write byte via parallel interface */
 void glcd_parallel_write(uint8_t c)
 {
-	
+
 	uint32_t port_output = \
 		( ( (1U << 0) & c ? 1 : 0 ) << CONTROLLER_LCD_D0_PIN ) | \
 		( ( (1U << 1) & c ? 1 : 0 ) << CONTROLLER_LCD_D1_PIN ) | \
@@ -121,20 +111,20 @@ void glcd_parallel_write(uint8_t c)
 	/* Clear data bits to zero and set required bits as needed */
 	LPC_GPIO->CLR[CONTROLLER_LCD_D0_PORT] |= GLCD_PARALLEL_MASK;
 	LPC_GPIO->SET[CONTROLLER_LCD_D0_PORT] |= port_output;
-	
+
 	GLCD_RW_LOW();
 	GLCD_CS_LOW();
 	GLCD_EN_HIGH();
-	
+
 	/* Must hold for minimum 80 ns = ~12.5 MHz pulse */
-	
+
 	/* Do whatever is needed for your MCU */
 	//glcd_delay(1);
-	
+
 	GLCD_EN_LOW();
 	GLCD_CS_HIGH();
 	GLCD_RW_HIGH();
-	
+
 }
 
 #else
@@ -157,11 +147,11 @@ void glcd_reset(void)
 	delay_ms(GLCD_RESET_TIME);
 	GLCD_RESET_HIGH();
 	GLCD_DESELECT();
-	
+
 #elif defined(GLCD_CONTROLLER_NT75451)
 	/* No firmware reset possible with our test board (BlueBoard) */
-	
-#endif /* GLCD_CONTROLLER_PCD8544 */	
+
+#endif /* GLCD_CONTROLLER_PCD8544 */
 }
 
 void glcd_delay(uint32_t count)

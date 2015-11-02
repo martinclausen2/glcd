@@ -52,13 +52,12 @@ void delay_ms(uint32_t ms);
 
 void glcd_init(void)
 {
-
-	/* Initialisation for PCD8544 controller */
+	/* Initialization of device */
 
 	/* Declare GPIO and SPI init structures */
 	GPIO_InitTypeDef GPIO_InitStructure;
 	SPI_InitTypeDef  SPI_InitStructure;
-	
+
 	/* Configuring CS, DC (A0) and RST pin */
 	/* Peripheral clock init. */
 	RCC_AHB1PeriphClockCmd(CONTROLLER_SPI_DC_RCC | CONTROLLER_SPI_SS_RCC | \
@@ -127,8 +126,6 @@ void glcd_init(void)
 	/* Enable the SPI peripheral */
 	SPI_Cmd(SPIx, ENABLE);
 
-	glcd_select_screen((uint8_t *)&glcd_buffer,&glcd_bbox);
-
 	RCC_AHB1PeriphClockCmd(LCD_LED_GPIO_RCC, ENABLE);
 	GPIO_InitStructure.GPIO_Pin = LCD_LED_PIN;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -139,9 +136,7 @@ void glcd_init(void)
 
 #if defined(GLCD_CONTROLLER_PCD8544)
 	/* Initialisation sequence of controller */
-
 	glcd_PCD8544_init();
-	glcd_clear();
 
 #elif defined(GLCD_CONTROLLER_ST7565R)
 	glcd_reset();
@@ -262,7 +257,7 @@ void glcd_spi_write(uint8_t c)
 	while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET);
 
 	SPI_I2S_SendData(SPIx, (uint16_t) c);
-	
+
 	/* Wait until entire byte has been read (which we discard anyway) */
 	while(SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_BSY) != RESET);
 

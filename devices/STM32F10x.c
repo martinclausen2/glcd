@@ -2,8 +2,7 @@
  * \file STM32F10x.c
  * \brief Device implementation for ST STM32F10x ARM Cortex-M3 MCUs
  *        Requires the use of ST's Standard Peripheral Library
- * \author Andy Gock
- * \todo Code is untested!
+ * \author Andy Gock, Martin Clausen
  */
 
 /*
@@ -34,71 +33,25 @@
 	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #if defined(GLCD_DEVICE_STM32F10X)
+#include "STM32F10x.h"  //our own code
+#include "ST7565R.h"
+#include "stm32f1xx.h"  //Cube32F generated
 
-#include "STM32F10x.h"
+extern SPI_HandleTypeDef hspi1;
 
-void glcd_init(void)
+void glcd_init_device(void)
 {
+    /* STM32CubeMX generated code must be called elsewhere*/
 
-#if defined(GLCD_CONTROLLER_PCD8544)
-	/* Initialisation for PCD8544 controller */
-
-	/* Need to make start up the correct peripheral clocks */
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_SPI1, ENABLE);
-
-	/* Set up GPIO pins */
-	GPIO_InitTypeDef GPIO_InitStructure;
-
-	/* SS pin */
-	GPIO_InitStructure.GPIO_Pin = CONTROLLER_SPI_SS_PIN;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(CONTROLLER_SPI_SS_PORT, &GPIO_InitStructure);
-
-	/* DC pin */
-	GPIO_InitStructure.GPIO_Pin = CONTROLLER_SPI_DC_PIN;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(CONTROLLER_SPI_DC_PORT, &GPIO_InitStructure);
-
-	/* RESET pin */
-	GPIO_InitStructure.GPIO_Pin = CONTROLLER_SPI_RST_PIN;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-	GPIO_Init(CONTROLLER_SPI_RST_PORT, &GPIO_InitStructure);
+#if defined(GLCD_CONTROLLER_ST7565R)
+	/* Initialization for ST7565R controller */
 
 	/* Make sure chip is de-selected by default */
 	GLCD_DESELECT();
-
-	/* Set up GPIO for SPI pins */
-	GPIO_InitStructure.GPIO_Pin = CONTROLLER_SPI_SCK_PIN | CONTROLLER_SPI_MISO_PIN | CONTROLLER_SPI_MOSI_PIN;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-	GPIO_Init(CONTROLLER_SPI_PORT, &GPIO_InitStructure);
-
-	/* Initialise SPI */
-	SPI_InitTypeDef SPI_InitStructure;
-	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
-	SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
-	SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
-	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32; /* Set clock speed! */
-	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-	SPI_InitStructure.SPI_CRCPolynomial = 7;
-	SPI_Init(CONTROLLER_SPI_NUMBER, &SPI_InitStructure);
-
-	SPI_I2S_ITConfig(CONTROLLER_SPI_NUMBER, SPI_I2S_IT_RXNE, ENABLE);
-
-	/* Enable SPI */
-	SPI_Cmd(CONTROLLER_SPI_NUMBER, ENABLE);
-
-	/* Initialisation sequence of controller */
-	/** \todo Need to initialise controller */
-
+	glcd_reset();
+	glcd_ST7565R_init();
 #else
-	#error "Controller not supported by STM32F100x"
+	#error "Controller not supported by STM32F10x"
 #endif
 
 }
@@ -107,11 +60,8 @@ void glcd_spi_write(uint8_t c)
 {
 
 	GLCD_SELECT();
-	SPI_I2S_SendData(CONTROLLER_SPI_NUMBER, (uint16_t) data);
-
-	/* Wait until entire byte has been read (which we discard anyway) */
-	while( SPI_I2S_GetFlagStatus(CONTROLLER_SPI_NUMBER,SPI_I2S_FLAG_RXNE) != SET );
-
+	//todo: add block write with DMA, use SPI_TIMEOUT_VALUE
+	HAL_SPI_Transmit(&hspi1, &c, 1, 10);
 	GLCD_SELECT();
 }
 
@@ -122,6 +72,11 @@ void glcd_reset(void)
 	delay_ms(GLCD_RESET_TIME);
 	GLCD_RESET_HIGH();
 	GLCD_DESELECT();
+}
+
+void delay_ms(uint32_t ms)
+{
+    HAL_Delay(ms);
 }
 
 #endif

@@ -26,12 +26,6 @@ void glcd_init(void)
 
 	/* Initialise the display */
 	glcd_PCD8544_init();
-
-	/* Select screen buffer */
-	glcd_select_screen(glcd_buffer,&glcd_bbox);
-
-	/* Clear screen, we are now ready to go */
-	glcd_clear();
 #else
 #error "Controller not supported"
 #endif /* GLCD_CONTROLLER_* */

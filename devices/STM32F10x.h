@@ -2,9 +2,7 @@
  * \file STM32F10x.h
  * \brief Device implementation for ST STM32F10x ARM Cortex-M3 MCUs
  *        Requires the use of ST's Standard Peripheral Library
- * \author Andy Gock
- *
- * \todo Code is untested!
+ * \author Andy Gock, Martin Clausen
  */
 
 /*
@@ -39,29 +37,29 @@
 
 #if defined(GLCD_DEVICE_STM32F10X)
 
-/** SPI port number e.g SPI1, SPI2 (not to be confused with GPIOA, GPIOB, etc) */
-#define CONTROLLER_SPI_NUMBER   SPI1
-#define CONTROLLER_SPI_PORT     GPIOA
-#define CONTROLLER_SPI_SCK_PIN  GPIO_Pin_5
-#define CONTROLLER_SPI_MISO_PIN GPIO_Pin_6
-#define CONTROLLER_SPI_MOSI_PIN GPIO_Pin_7
+#include <stdint.h>
+#include "glcd.h"
+#include "stm32f1xx_hal.h"
 
-#define CONTROLLER_SPI_SS_PORT  GPIOA
-#define CONTROLLER_SPI_SS_PIN   GPIO_Pin_1
-#define CONTROLLER_SPI_DC_PORT  GPIOA
-#define CONTROLLER_SPI_DC_PIN   GPIO_Pin_2
-#define CONTROLLER_SPI_RST_PORT GPIOA
-#define CONTROLLER_SPI_RST_PIN  GPIO_Pin_3
+/** SPI is configured by STM32CubeMX*/
 
-#define GLCD_SELECT()     GPIO_ResetBits(CONTROLLER_SPI_SS_PORT,CONTROLLER_SPI_SS_PIN)
-#define GLCD_DESELECT()   GPIO_SetBits(CONTROLLER_SPI_SS_PORT,CONTROLLER_SPI_SS_PIN)
-#define GLCD_DC_LOW()     GPIO_ResetBits(CONTROLLER_SPI_DC_PORT,CONTROLLER_SPI_DC_PIN)
-#define GLCD_DC_HIGH()    GPIO_SetBits(CONTROLLER_SPI_DC_PORT,CONTROLLER_SPI_DC_PIN)
-#define GLCD_RESET_LOW()  GPIO_ResetBits(CONTROLLER_SPI_RST_PORT,CONTROLLER_SPI_RST_PIN)
-#define GLCD_RESET_HIGH() GPIO_SetBits(CONTROLLER_SPI_RST_PORT,CONTROLLER_SPI_RST_PIN)
+/** Set GPIO pins used to control display*/
+
+#define CONTROLLER_SPI_A0_PIN_Pin GPIO_PIN_6
+#define CONTROLLER_SPI_RST_PIN_Pin GPIO_PIN_7
+#define CONTROLLER_SPI_SS_PIN_Pin GPIO_PIN_8
+
+#define GLCD_SELECT()       HAL_GPIO_WritePin(GPIOC, CONTROLLER_SPI_SS_PIN_Pin, GPIO_PIN_RESET)
+#define GLCD_DESELECT()     HAL_GPIO_WritePin(GPIOC, CONTROLLER_SPI_SS_PIN_Pin, GPIO_PIN_SET)
+#define GLCD_A0_LOW()       HAL_GPIO_WritePin(GPIOC, CONTROLLER_SPI_A0_PIN_Pin, GPIO_PIN_RESET)
+#define GLCD_A0_HIGH()      HAL_GPIO_WritePin(GPIOC, CONTROLLER_SPI_A0_PIN_Pin, GPIO_PIN_SET)
+#define GLCD_RESET_LOW()    HAL_GPIO_WritePin(GPIOC, CONTROLLER_SPI_RST_PIN_Pin, GPIO_PIN_RESET)
+#define GLCD_RESET_HIGH()   HAL_GPIO_WritePin(GPIOC, CONTROLLER_SPI_RST_PIN_Pin, GPIO_PIN_SET)
 
 #else
-	#error "Controller not supported by STM32F10X"
+	#error "Device not supported by STM32F10X"
 #endif
+
+void delay_ms(uint32_t ms);     //will use the HAL_Delay
 
 #endif /* STM32F10X_H_ */
