@@ -34,8 +34,7 @@
 */
 #if defined(GLCD_DEVICE_STM32F10X)
 #include "STM32F10x.h"  //our own code
-#include "ST7565R.h"
-#include "stm32f1xx.h"  //Cube32F generated
+#include "../controllers/ST7565R.h"
 
 extern SPI_HandleTypeDef hspi1;
 

@@ -35,6 +35,10 @@
 #ifndef _GLCD_H
 #define _GLCD_H
 
+typedef unsigned char uint8_t;
+
+
+
 #if defined(GLCD_DEVICE_AVR8)
 	#include <avr/pgmspace.h>
 	#include <avr/io.h>
@@ -62,20 +66,17 @@
 	#define PROGMEM
 
 #elif defined(GLCD_DEVICE_STM32F0XX)
-	#include <stm32f0xx.h>
 	#include <stm32f0xx_gpio.h>
 	#include "devices/STM32F0xx.h"
 	extern void delay_ms(uint32_t ms);
 	#define PROGMEM
 
 #elif defined(GLCD_DEVICE_STM32F10X)
-	#include <stm32f10x.h>
 	#include "devices/STM32F10x.h"
 	extern void delay_ms(uint32_t ms);
 	#define PROGMEM
 
 #elif defined(GLCD_DEVICE_STM32F4XX)
-	#include <stm32f4xx.h>
 	#include "devices/STM32F4.h"
 	extern void delay_ms(uint32_t ms);
 	#define PROGMEM
